@@ -1,9 +1,16 @@
 package com.example.ed139.bakinghelper;
 
+import android.support.test.espresso.IdlingRegistry;
+import android.support.test.espresso.IdlingResource;
+import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
+import junit.framework.AssertionFailedError;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,15 +25,18 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 @RunWith(AndroidJUnit4.class)
 public class VideoIntentBasicTest {
 
-    /**
-     * The ActivityTestRule is a rule provided by Android used for functional testing of a single
-     * activity. The activity that will be tested will be launched before each test that's annotated
-     * with @Test and before methods annotated with @Before. The activity will be terminated after
-     * the test and methods annotated with @After are complete. This rule allows you to directly
-     * access the activity during the test.
-     */
+    private IdlingResource mIdlingResource;
+
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
+
+    // Registers any resource that needs to be synchronized with Espresso before the test is run.
+    @Before
+    public void registerIdlingResource() {
+        mIdlingResource = mActivityTestRule.getActivity().getIdlingResource();
+        // To prove that the test fails, omit this call:
+        IdlingRegistry.getInstance().register(mIdlingResource);
+    }
 
     /**
      * Clicks on a step item and checks it opens up the VideoActivity with the correct details.
@@ -37,13 +47,23 @@ public class VideoIntentBasicTest {
         // click Nutella Pie
         onView(withId(R.id.recycler_view)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
 
-        // is quantity text view visible?
-        onView(withId(R.id.steps_rv)).check(matches(hasDescendant(withId(R.id.desc_tv))));
-
         // click on a step
         onView(withId(R.id.steps_rv)).perform(RecyclerViewActions.actionOnItemAtPosition(1, click()));
 
-        // is exoplayer appearing?
-        onView(withId(R.id.exo_play)).check(matches(isDisplayed()));
+        // not sure why R.id.playerView didn't work. Had to reference the whole layout which
+        // is named differently if !mTwoPane
+        try {
+            onView(withId(R.id.video_container)).check(matches(isDisplayed()));
+        } catch (NoMatchingViewException e){
+            onView(withId(R.id.video_fragment)).check(matches(isDisplayed()));
+        }
+    }
+
+    // Remember to unregister resources when not needed to avoid malfunction.
+    @After
+    public void unregisterIdlingResource() {
+        if (mIdlingResource != null) {
+            IdlingRegistry.getInstance().unregister(mIdlingResource);
+        }
     }
 }

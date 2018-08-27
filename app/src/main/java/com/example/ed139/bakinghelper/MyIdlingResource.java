@@ -28,10 +28,7 @@ public class MyIdlingResource implements IdlingResource {
         mCallback = callback;
     }
 
-    /**
-     * Sets the new idle state, if isIdleNow is true, it pings the {@link ResourceCallback}.
-     * @param isIdleNow false if there are pending operations, true if idle.
-     */
+
     public void setIdleState(boolean isIdleNow) {
         mIsIdleNow.set(isIdleNow);
         if (isIdleNow && mCallback != null) {

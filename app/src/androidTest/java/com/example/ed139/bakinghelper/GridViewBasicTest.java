@@ -14,6 +14,8 @@ import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 @RunWith(AndroidJUnit4.class)
@@ -54,11 +56,12 @@ public class GridViewBasicTest {
             e.printStackTrace();
         }
 
-        // click Nutella Pie
+        // click Brownies
         onView(withId(R.id.recycler_view)).perform(RecyclerViewActions.actionOnItemAtPosition(1, click()));
 
         // is quantity text view visible?
-        //onView(withId(R.id.ingredients_rv)).check(matches(hasDescendant(withId(R.id.quantity_tv))));
+        // yes - test passed
+        onView(withId(R.id.ingredients_rv)).check(matches(hasDescendant(withId(R.id.quantity_tv))));
     }
 
     // Remember to unregister resources when not needed to avoid malfunction.
